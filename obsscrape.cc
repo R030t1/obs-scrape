@@ -4,7 +4,10 @@
 #include <obs/obs.h>
 
 #include <iostream>
+#include <thread>
 using namespace std;
+
+void raw_video_callback(void *param, struct video_data *frame);
 
 const char *obs_module_errstr(int code);
 const char *obs_video_errstr(int code);
@@ -26,24 +29,6 @@ int main(int argc, char *argv[]) {
 	while (obs_enum_source_types(idx++, &str))
 		printf("%s\n", str);
 
-	obs_scene_t *scene = obs_scene_create("main");
-	if (!scene) { cout << "error: obs_scene_create: failed" << endl; }
-
-	obs_source_t *source = obs_source_create("xshm_input", "screen", nullptr, nullptr);
-	if (!source) { cout << "error: obs_source_create: failed" << endl; }
-
-	obs_sceneitem_t *scit = obs_scene_add(scene, source);
-	if (!scit) { cout << "error: obs_scene_add: failed" << endl; }
-
-	struct obs_transform_info itinfo;
-	obs_sceneitem_get_info(scit, &itinfo);
-	cout << "x: " << itinfo.pos.x << " y: " << itinfo.pos.y << " rot: " << itinfo.rot << endl;
-	cout << "bounds.x: " << itinfo.bounds.x << " bounds.y: " << itinfo.bounds.y << endl;
-
-	obs_source_release(source);
-	obs_scene_release(scene);
-	return 0;
-
 	struct obs_video_info ovi = {
 		.graphics_module = "libobs-opengl",
 		.fps_num = 1,
@@ -62,7 +47,32 @@ int main(int argc, char *argv[]) {
 	rc = obs_reset_video(&ovi);
 	cout << "info: obs_reset_video: " << obs_video_errstr(rc) << endl;
 
+	obs_scene_t *scene = obs_scene_create("main");
+	if (!scene) { cout << "error: obs_scene_create: failed" << endl; }
+
+	obs_source_t *source = obs_source_create("xshm_input", "screen", nullptr, nullptr);
+	if (!source) { cout << "error: obs_source_create: failed" << endl; }
+
+	obs_sceneitem_t *scit = obs_scene_add(scene, source);
+	if (!scit) { cout << "error: obs_scene_add: failed" << endl; }
+
+	struct obs_transform_info itinfo;
+	obs_sceneitem_get_info(scit, &itinfo);
+	cout << "x: " << itinfo.pos.x << " y: " << itinfo.pos.y << " rot: " << itinfo.rot << endl;
+	cout << "bounds.x: " << itinfo.bounds.x << " bounds.y: " << itinfo.bounds.y << endl;
+
+	obs_add_raw_video_callback(NULL, raw_video_callback, NULL);
+
+	std::this_thread::sleep_for(5s);
+
+	obs_source_release(source);
+	obs_scene_release(scene);
 	obs_shutdown();
+	return 0;
+}
+
+void raw_video_callback(void *param, struct video_data *frame) {
+	printf(".\n");
 }
 
 #define NAME_SWITCH_CASE(element) case element: return #element
