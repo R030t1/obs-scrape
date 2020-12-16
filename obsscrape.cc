@@ -53,6 +53,10 @@ int main(int argc, char *argv[]) {
 	obs_sceneitem_t *scit = obs_scene_add(scene, source);
 	if (!scit) { cout << "error: obs_scene_add: failed" << endl; }
 
+	cout << "source active state: " << obs_source_active(source) << endl;
+	cout << "source showing state: " << obs_source_showing(source) << endl;
+	cout << "source enabled state: " << obs_source_enabled(source) << endl;
+
 	struct obs_transform_info itinfo;
 	obs_sceneitem_get_info(scit, &itinfo);
 	cout << "x: " << itinfo.pos.x << " y: " << itinfo.pos.y << " rot: " << itinfo.rot << endl;
@@ -60,15 +64,20 @@ int main(int argc, char *argv[]) {
 
 	obs_add_raw_video_callback(NULL, raw_video_callback, NULL);
 
-	obs_output_t *output = obs_output_create("null_output", "nullout", nullptr, nullptr);
+	obs_output_t *output = obs_output_create("flv_output", "nullout", nullptr, nullptr);
 	if (!output) { cout << "error: obs_output_create: failed" << endl; }
 
 	cout << obs_output_get_width(output) << endl;
 	cout << obs_output_get_height(output) << endl;
-	if (!obs_output_start(output)) {
-		cout << "error: obs_output_start: failed" << endl;
-		cout << obs_output_get_last_error(output) << endl;
-	}
+	obs_output_set_preferred_size(output, 1920, 1080);
+	cout << obs_output_get_width(output) << endl;
+	cout << obs_output_get_height(output) << endl;
+
+	uint32_t f = obs_output_get_flags(output);
+	if (f & OBS_OUTPUT_VIDEO) cout << "======= video set" << endl;
+	if (f & OBS_OUTPUT_SERVICE) cout << "======= service set" << endl;
+
+	obs_set_output_source(0, source);
 
 	struct obs_video_info ovi = {
 		.graphics_module = "libobs-opengl",
@@ -87,6 +96,12 @@ int main(int argc, char *argv[]) {
 	};
 	rc = obs_reset_video(&ovi);
 	cout << "info: obs_reset_video: " << obs_video_errstr(rc) << endl;
+
+	if (!obs_output_start(output)) {
+		cout << "error: obs_output_start: failed" << endl;
+		const char *last = obs_output_get_last_error(output);
+		printf("%p: %s\n", last, last);
+	}
 
 	std::this_thread::sleep_for(5s);
 
