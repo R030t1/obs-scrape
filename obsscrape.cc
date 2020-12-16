@@ -77,7 +77,8 @@ int main(int argc, char *argv[]) {
 	if (f & OBS_OUTPUT_VIDEO) cout << "======= video set" << endl;
 	if (f & OBS_OUTPUT_SERVICE) cout << "======= service set" << endl;
 
-	obs_set_output_source(0, source);
+	//obs_set_output_source(0, source);
+	obs_set_output_source(0, (obs_source_t *)scene);
 
 	struct obs_video_info ovi = {
 		.graphics_module = "libobs-opengl",
@@ -94,7 +95,7 @@ int main(int argc, char *argv[]) {
 		/* .range = , */
 		/* .scale_type = , */
 	};
-	rc = obs_reset_video(&ovi);
+	//rc = obs_reset_video(&ovi);
 	cout << "info: obs_reset_video: " << obs_video_errstr(rc) << endl;
 
 	if (!obs_output_start(output)) {
