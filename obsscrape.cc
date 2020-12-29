@@ -86,7 +86,7 @@ int main(int argc, char *argv[]) {
 
 	obs_add_raw_video_callback(NULL, raw_video_callback, NULL);
 
-	obs_output_t *output = obs_output_create("flv_output", "nullout", nullptr, nullptr);
+	obs_output_t *output = obs_output_create("null_output", "nullout", nullptr, nullptr);
 	if (!output) { cout << "error: obs_output_create: failed" << endl; }
 
 	cout << obs_output_get_width(output) << endl;
