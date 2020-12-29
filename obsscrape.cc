@@ -19,6 +19,24 @@ int main(int argc, char *argv[]) {
 	//cout << obs_get_version() << " " << obs_get_version_string() << endl;
 	//cout << obs_initialized() << endl;
 
+	struct obs_video_info ovi = {
+		.graphics_module = "libobs-opengl",
+		.fps_num = 1,
+		.fps_den = 60,
+		.base_width = 1920,
+		.base_height = 1080,
+		.output_width = 1920,
+		.output_height = 1080,
+		.output_format = VIDEO_FORMAT_RGBA,
+		.adapter = 0,
+		.gpu_conversion = true,
+		/* .colorspace = , */
+		/* .range = , */
+		/* .scale_type = , */
+	};
+	rc = obs_reset_video(&ovi);
+	cout << "info: obs_reset_video: " << obs_video_errstr(rc) << endl;
+
 	obs_module_t *lincapmod;
 	rc = obs_open_module(&lincapmod, "/usr/lib64/obs-plugins/linux-capture.so", NULL);
 	cout << "info: obs_open_module: " << obs_module_errstr(rc) << endl;
@@ -78,24 +96,6 @@ int main(int argc, char *argv[]) {
 	if (f & OBS_OUTPUT_SERVICE) cout << "======= service set" << endl;
 
 	obs_set_output_source(0, source);
-
-	struct obs_video_info ovi = {
-		.graphics_module = "libobs-opengl",
-		.fps_num = 1,
-		.fps_den = 60,
-		.base_width = 1920,
-		.base_height = 1080,
-		.output_width = 1920,
-		.output_height = 1080,
-		.output_format = VIDEO_FORMAT_RGBA,
-		.adapter = 0,
-		.gpu_conversion = true,
-		/* .colorspace = , */
-		/* .range = , */
-		/* .scale_type = , */
-	};
-	rc = obs_reset_video(&ovi);
-	cout << "info: obs_reset_video: " << obs_video_errstr(rc) << endl;
 
 	if (!obs_output_start(output)) {
 		cout << "error: obs_output_start: failed" << endl;
