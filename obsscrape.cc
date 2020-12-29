@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+
 #include <obs/obs.h>
 
 #include <iostream>
@@ -103,7 +107,7 @@ int main(int argc, char *argv[]) {
 		printf("%p: %s\n", last, last);
 	}
 
-	std::this_thread::sleep_for(5s);
+	std::this_thread::sleep_for(1s);
 
 	obs_output_release(output);
 	obs_source_release(source);
@@ -113,7 +117,18 @@ int main(int argc, char *argv[]) {
 }
 
 void raw_video_callback(void *param, struct video_data *frame) {
-	printf(".\n");
+	static bool ran = 0;
+	if (ran) return;
+
+	// magick -size 1920x1080 -depth 8 output.rgba output.png
+	int fd = open("output.rgba", O_RDWR | O_CREAT);
+	fchmod(fd, 0700);
+
+	int n = write(fd, frame->data[0], 1920*1080*4);
+	printf("%d\n", n);
+
+	close(fd);
+	ran = true;
 }
 
 #define NAME_SWITCH_CASE(element) case element: return #element
