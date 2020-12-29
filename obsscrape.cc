@@ -21,8 +21,8 @@ int main(int argc, char *argv[]) {
 
 	struct obs_video_info ovi = {
 		.graphics_module = "libobs-opengl",
-		.fps_num = 1,
-		.fps_den = 60,
+		.fps_num = 60,
+		.fps_den = 1,
 		.base_width = 1920,
 		.base_height = 1080,
 		.output_width = 1920,
